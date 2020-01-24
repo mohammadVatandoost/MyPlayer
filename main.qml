@@ -40,7 +40,7 @@ Rectangle {
             height: parent.height-100
             MediaPlayer {
                 id: mediaplayer
-                source: "file:///E:/Pain.And.Glory.2019.1080p.BluRay.YTS.MrMovie.mp4"
+                source: "file:///E:/1.mp4"
 //                seekable: true
             }
 
@@ -63,10 +63,14 @@ Rectangle {
                 text: qsTr("00:00:00")
             }
             Slider {
-                width: parent.width-100
+                id: sliderFilePosition
+                implicitWidth: parent.width-150
                 from: 1
                 value: 1
-                to: 100
+                to: 1000
+                onMoved: {
+                    mediaplayer.seek(sliderFilePosition.value*mediaplayer.duration/1000);
+                }
             }
             Text {
                 id: durationRemai
