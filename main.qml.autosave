@@ -41,7 +41,6 @@ Rectangle {
             MediaPlayer {
                 id: mediaplayer
                 source: "file:///E:/1.mp4"
-//                seekable: true
             }
 
             VideoOutput {
@@ -58,11 +57,10 @@ Rectangle {
 
         Text {
             id: subtitleText
-            text: qsTr("Test*******************")
+            text: qsTr("")
             y: -150
             font.pixelSize: 18
             color: "white"
-//            Layout.alignment: Qt.AlignHCenter
             anchors.horizontalCenter: parent.horizontalCenter
         }
 
