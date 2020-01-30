@@ -1,5 +1,13 @@
 <RCC>
     <qresource prefix="/">
         <file>main.qml</file>
+        <file>icons/pause96.png</file>
+        <file>icons/play48.png</file>
+        <file>icons/play96.png</file>
+        <file>icons/skip-backward72.png</file>
+        <file>icons/skip-forward72.png</file>
+        <file>icons/skip-next72.png</file>
+        <file>icons/skip-previous72.png</file>
+        <file>icons/upload.png</file>
     </qresource>
 </RCC>

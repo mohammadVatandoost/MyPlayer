@@ -11,8 +11,10 @@ Window {
     visible: true
     width: 900
     height: 700
-    title: qsTr("Hello World")
-
+    title: qsTr("EasyPlayer")
+    flags: Qt.FramelessWindowHint |
+           Qt.WindowMinimizeButtonHint |
+           Qt.Window
 Rectangle {
     id: root
     color: "black"
@@ -31,17 +33,17 @@ Rectangle {
       return hours + ":" + minutes + ":" + seconds;
     }
 
+
     Column {
         width: parent.width
         height: parent.height
-
+        z: 1
         Item {
             width: parent.width
-            height: parent.height-100
+            height: parent.height
             MediaPlayer {
                 id: mediaplayer
                 source: "file:///E:/1.mp4"
-//                seekable: true
             }
 
             VideoOutput {
@@ -56,18 +58,23 @@ Rectangle {
             }
         }
 
-        Text {
-            id: subtitleText
-            text: qsTr("Test*******************")
-            y: -150
-            font.pixelSize: 18
-            color: "white"
-//            Layout.alignment: Qt.AlignHCenter
-            anchors.horizontalCenter: parent.horizontalCenter
-        }
+     }
 
+    Text {
+        id: subtitleText
+        z: 10
+        text: qsTr("")
+        y: sliderContainer.y-50
+        font.pixelSize: 18
+        color: "white"
+        anchors.horizontalCenter: parent.horizontalCenter
+    }
         RowLayout {
-            width: parent.width
+            id: sliderContainer
+            width: parent.width*0.95
+            y: parent.height-100
+            z: 10
+            anchors.horizontalCenter: parent.horizontalCenter
             Text {
                 id: durationPass
                 color: "white"
@@ -93,61 +100,88 @@ Rectangle {
 
         RowLayout {
             width: parent.width
+            y: parent.height-50
+            z: 10
             Button {
                    Layout.alignment: Qt.AlignHCenter
-                   text: qsTr("Choose File")
+                   icon.name: "choose file"
+                   icon.source: "icons/upload.png"
                    highlighted: true
-                   Material.background: Material.Blue
+                   Material.background: "black"
                    onClicked: {fileDialog.open();}
             }
 
             Button {
-                id: playBtn
+                id: prviousBtn
                    Layout.alignment: Qt.AlignHCenter
-                   text: qsTr("Play")
+                   icon.name: "skip-previous"
+                   icon.source: "icons/skip-previous72.png"
                    highlighted: true
-                   Material.background: Material.Blue
+                   Material.background: "black"
+                   onClicked: {
+                       mediaplayer.seek(mediaplayer.position-10000);
+                   }
+            }
 
-                   property bool status: false
+            Button {
+                id: backwardBtn
+                   Layout.alignment: Qt.AlignHCenter
+                   icon.name: "skip-backward"
+                   icon.source: "icons/skip-backward72.png"
+                   highlighted: true
+                   Material.background: "black"
+                   onClicked: {
+                       mediaplayer.seek(mediaplayer.position-10000);
+                   }
+            }
+
+            Button {
+                id: playBtn
+                 property bool status: false
+                   Layout.alignment: Qt.AlignHCenter
+                   icon.name: "play"
+                   icon.source: status ? "icons/pause96.png" : "icons/play96.png"
+                   highlighted: true
+                   Material.background: "black"
+
                    onClicked: {
                        console.log(mediaplayer.duration);
                        if(status) {
                          status = false  ;
-                         playBtn.text = "Pause";
                            mediaplayer.pause();
                        } else {
                            status = true;
-                           playBtn.text = "Play"
                            mediaplayer.play();
                        }
 
                    }
             }
+
             Button {
                 id: forwardBtn
                    Layout.alignment: Qt.AlignHCenter
-                   text: qsTr("forward")
+                   icon.name: "skip-forward"
+                   icon.source: "icons/skip-forward72.png"
                    highlighted: true
-                   Material.background: Material.Blue
+                   Material.background: "black"
                    onClicked: {
                        mediaplayer.seek(mediaplayer.position+10000);
                    }
             }
+
             Button {
-                id: backwardBtn
+                id: nextBtn
                    Layout.alignment: Qt.AlignHCenter
-                   text: qsTr("backward")
+                   icon.name: "skip-next"
+                   icon.source: "icons/skip-next72.png"
                    highlighted: true
-                   Material.background: Material.Blue
+                   Material.background: "black"
                    onClicked: {
                        mediaplayer.seek(mediaplayer.position-10000);
                    }
             }
+
         }
-
-
-
-       }
 
        FileDialog {
            id: fileDialog
@@ -177,83 +211,3 @@ Rectangle {
       }
    }
 }
-
-
-//Window {
-//    visible: true
-//    width: 900
-//    height: 700
-//    title: qsTr("Hello World")
-
-//   Column {
-//       width: parent.width
-//       height: parent.width
-
-//       Item {
-//           width: parent.width
-//           height: 600
-//           MediaPlayer {
-//               id: mediaplayer
-//               source: "file:///E:/Pain.And.Glory.2019.1080p.BluRay.YTS.MrMovie.mp4"
-//           }
-
-//           VideoOutput {
-//               anchors.fill: parent
-//               source: mediaplayer
-//           }
-
-//           MouseArea {
-//               id: playArea
-//               anchors.fill: parent
-//               onPressed: mediaplayer.play();
-//           }
-//       }
-
-//    Video {
-//        id: video
-//        width : 800
-//        height : 600
-//        source: "file:///E:/Pain.And.Glory.2019.1080p.BluRay.YTS.MrMovie.mp4"
-
-//        MouseArea {
-//            anchors.fill: parent
-//            onClicked: {
-//                console.log("mouse clicked");
-//                video.play()
-//            }
-//        }
-
-//        focus: true
-//        Keys.onSpacePressed: video.playbackState == MediaPlayer.PlayingState ? video.pause() : video.play()
-//        Keys.onLeftPressed: video.seek(video.position - 5000)
-//        Keys.onRightPressed: video.seek(video.position + 5000)
-//    }
-
-//    Button {
-//           Layout.alignment: Qt.AlignHCenter
-//           text: qsTr("Choose File")
-//           highlighted: true
-//           Material.background: Material.Blue
-//           onClicked: {fileDialog.open();}
-////           enabled: root.auth
-//    }
-
-//   }
-
-//   FileDialog {
-//       id: fileDialog
-//       title: "Please choose a file"
-//       folder: shortcuts.home
-//       onAccepted: {
-//           console.log("You chose: " + fileDialog.fileUrls)
-//           fileDialog.close();
-////           Qt.quit()
-//       }
-//       onRejected: {
-//           console.log("Canceled")
-//           fileDialog.close();
-////           Qt.quit()
-//       }
-////       Component.onCompleted: visible = true
-//   }
-//}
