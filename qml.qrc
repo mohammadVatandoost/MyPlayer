@@ -9,5 +9,8 @@
         <file>icons/skip-next72.png</file>
         <file>icons/skip-previous72.png</file>
         <file>icons/upload.png</file>
+        <file>icons/volume-high.png</file>
+        <file>icons/volume-medium.png</file>
+        <file>icons/volume-off.png</file>
     </qresource>
 </RCC>

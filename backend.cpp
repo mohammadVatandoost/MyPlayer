@@ -20,35 +20,7 @@ void BackEnd::readSubtitleFile(QString directory)
       ofstream myfile;
       myfile.open ("out.srt");
       cout<< "sub.size()"<< sub.size()<<endl;
-//      for(SubtitleItem * element : sub)
-//      {
-//          cout<<"BEGIN"<<endl;
-////          cout<<"startString : "<<element->getStartTimeString()<<endl;
-//          cout<<"start : "<<element->getStartTime()<<endl;
-////          cout<<"endString : "<<element->getEndTimeString()<<endl;
-//          cout<<"end : "<<element->getEndTime()<<endl;
-//          cout<<"text : "<<element->getText()<<endl;
-//          cout<<"justDialogue : "<<element->getDialogue()<<endl;
-////          cout<<"words count : "<<element->getWordCount()<<endl;
-////          cout<<"words :";
-////          std::vector<std::string> word = element->getIndividualWords();
-////              for(std::string display : word)
-////                  cout<<display<<", ";
-////              cout<<endl;
 
-////          cout<<"speakerCount : "<<element->getSpeakerCount()<<endl;
-////          cout<<"speakers : ";
-////          if(element->getSpeakerCount())
-////          {
-////              std::vector<std::string> name = element->getSpeakerNames();
-////              for(std::string display : name)
-////                  cout<<display<<", ";
-////              cout<<endl;
-////          }
-
-////          cout<<"ignore : "<<element->getIgnoreStatus()<<endl;
-//          cout<<"END"<<endl<<endl;
-//      }
 }
 
 QString BackEnd::getSubtitleText(double playTime)
@@ -57,12 +29,50 @@ QString BackEnd::getSubtitleText(double playTime)
         double startTime = element->getStartTime();
         double endTime = element->getEndTime();
         if( (startTime <= playTime) && (playTime <= endTime)) {
-//            cout<< "getSubtitleText: founded"<< element->getText()<<endl;
             return QString::fromStdString(element->getText());
         }
     }
-//    cout<< "getSubtitleText: not founded"<< endl;
     return "";
+}
+
+void BackEnd::chooseFile(QString directory)
+{
+    cout<< "chooseFile: "<< directory.toStdString()<<endl;
+    directory.replace("file:///", "");
+    cout<< "chooseFile after pre: "<< directory.toStdString()<<endl;
+    fileURL = directory;
+    QFileInfo file(directory);
+    if(!file.exists()) {
+        cout<< "file does not exist"<<endl;
+    } else {
+       currentFileName = file.fileName();
+       currentDirectory = directory.replace(currentFileName, "");
+       cout<< "currentDirectory: "<< currentDirectory.toStdString()<<endl;
+       filesInDirectory = getAllFiles(file.dir());
+    }
+
+}
+
+QString BackEnd::getNextFile()
+{
+    if(filesInDirectory.size() ==0) {return  "";}
+    if( (pointerCurrentFile+1) < filesInDirectory.size()) {
+        pointerCurrentFile = pointerCurrentFile + 1;
+        return "file:///"+currentDirectory+filesInDirectory[pointerCurrentFile];
+    }
+    pointerCurrentFile = 0 ;
+    return "file:///"+currentDirectory+filesInDirectory[pointerCurrentFile];
+}
+
+QString BackEnd::getPreviousFile()
+{
+    if(filesInDirectory.size() ==0) {return  "";}
+    if( (pointerCurrentFile-1) >=  0) {
+        pointerCurrentFile = pointerCurrentFile - 1;
+        return "file:///"+currentDirectory+filesInDirectory[pointerCurrentFile];
+    }
+    pointerCurrentFile = filesInDirectory.size() - 1 ;
+    return "file:///"+currentDirectory+filesInDirectory[pointerCurrentFile];
 }
 
 bool BackEnd::isFileExist(const string &temp)
@@ -72,5 +82,17 @@ bool BackEnd::isFileExist(const string &temp)
             return true;
         } else {
             return false;
-        }
+    }
+}
+
+QStringList BackEnd::getAllFiles(QDir fileDirectory)
+{
+   QStringList fileList = fileDirectory.entryList(QStringList()<< "*.mp4" << "*.mp3" << "*.mkv", QDir::Files);
+   for(int i=0; i< fileList.size(); i++) {
+       if(fileList[i] == currentFileName ) {
+           pointerCurrentFile = i;
+       }
+//      cout<< fileList[i].toStdString()<<endl;
+   }
+   return fileList;
 }

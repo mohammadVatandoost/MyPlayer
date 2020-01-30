@@ -33,6 +33,11 @@ Rectangle {
       return hours + ":" + minutes + ":" + seconds;
     }
 
+    function playFile(temp) {
+        mediaplayer.source = temp;
+        sliderFilePosition.value = 1;
+        mediaplayer.play();
+    }
 
     Column {
         width: parent.width
@@ -54,7 +59,9 @@ Rectangle {
             MouseArea {
                 id: playArea
                 anchors.fill: parent
-                onPressed: mediaplayer.play();
+                onPressed: {
+
+                }
             }
         }
 
@@ -69,7 +76,8 @@ Rectangle {
         color: "white"
         anchors.horizontalCenter: parent.horizontalCenter
     }
-        RowLayout {
+
+    RowLayout {
             id: sliderContainer
             width: parent.width*0.95
             y: parent.height-100
@@ -119,7 +127,7 @@ Rectangle {
                    highlighted: true
                    Material.background: "black"
                    onClicked: {
-                       mediaplayer.seek(mediaplayer.position-10000);
+                       root.playFile(BackEnd.getPreviousFile());
                    }
             }
 
@@ -177,10 +185,47 @@ Rectangle {
                    highlighted: true
                    Material.background: "black"
                    onClicked: {
-                       mediaplayer.seek(mediaplayer.position-10000);
+                      root.playFile(BackEnd.getNextFile());
                    }
             }
 
+            RowLayout {
+                width: 200
+                Button {
+                    id: volumeBtn
+                    width: 50
+                    property int volumeStatus: 0
+                       Layout.alignment: Qt.AlignHCenter
+                       icon.name: "skip-next"
+                       icon.source: ( volumeStatus == 0 ) ? "icons/volume-high.png" : "icons/volume-off.png"
+                       highlighted: true
+                       Material.background: "black"
+                       onClicked: {
+                          volumeStatus = volumeStatus+1;
+                           if(volumeStatus == 2) {
+                               volumeStatus = 0;
+                               mediaplayer.volume =  sliderVolumePosition.previousValue/100;
+                               sliderVolumePosition.value = sliderVolumePosition.previousValue;
+                           } else {
+                               sliderVolumePosition.previousValue = sliderVolumePosition.value;
+                               sliderVolumePosition.value = 0;
+                               mediaplayer.volume =  0;
+                           }
+                       }
+                }
+
+                Slider {
+                    id: sliderVolumePosition
+                    property int previousValue: 50
+                    implicitWidth: 150
+                    from: 0
+                    value: 50
+                    to: 100
+                    onMoved: {
+                        mediaplayer.volume =  sliderVolumePosition.value/100;
+                    }
+                }
+            }
         }
 
        FileDialog {
@@ -189,7 +234,15 @@ Rectangle {
            folder: shortcuts.home
            onAccepted: {
                console.log("You chose: " + fileDialog.fileUrls)
-               fileDialog.close();
+               mediaplayer.source = fileDialog.fileUrls[0];
+               sliderFilePosition.value = 1;
+               mediaplayer.play();
+//               var temp = ""+fileDialog.fileUrl;
+//               var selectedURL = temp.slice(temp.lastIndexOf("/")+1, temp.length)
+//               console.log(selectedURL)
+                BackEnd.chooseFile(fileDialog.fileUrls[0]);
+
+//               fileDialog.close();
     //           Qt.quit()
            }
            onRejected: {
@@ -199,7 +252,32 @@ Rectangle {
            }
     //       Component.onCompleted: visible = true
        }
+
+       Keys.onRightPressed: {
+           mediaplayer.seek(mediaplayer.position+10000);
+           durationPass.text =  root.msToTime(mediaplayer.position);
+       }
+
+       Keys.onLeftPressed: {
+           mediaplayer.seek(mediaplayer.position-10000);
+           durationPass.text =  root.msToTime(mediaplayer.position);
+       }
+
+       Keys.onUpPressed: {
+           if(sliderVolumePosition.value < 100) {
+               sliderVolumePosition.value = sliderVolumePosition.value + 1;
+               mediaplayer.volume = sliderVolumePosition.value/100;
+           }
+       }
+
+       Keys.onDownPressed: {
+           if(sliderVolumePosition.value !== 0) {
+               sliderVolumePosition.value = sliderVolumePosition.value - 1;
+               mediaplayer.volume = sliderVolumePosition.value/100;
+           }
+       }
   }
+
    Timer {
       id: refreshTimer
       interval: 1000//30 // 60 Hz
@@ -208,6 +286,12 @@ Rectangle {
       onTriggered: {
          durationPass.text =  root.msToTime(mediaplayer.position);
          subtitleText.text = BackEnd.getSubtitleText(mediaplayer.position) ;
+          if(mediaplayer.duration == mediaplayer.position && mediaplayer.duration>0) {
+//              console.log("******** it reach last ************")
+              root.playFile(BackEnd.getNextFile());
+          }
       }
    }
+
+
 }
