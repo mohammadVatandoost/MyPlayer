@@ -12,5 +12,9 @@
         <file>icons/volume-high.png</file>
         <file>icons/volume-medium.png</file>
         <file>icons/volume-off.png</file>
+        <file>icons/close72.png</file>
+        <file>icons/fullscreen72.png</file>
+        <file>icons/window-maximize72.png</file>
+        <file>icons/window-minimize72.png</file>
     </qresource>
 </RCC>
