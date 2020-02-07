@@ -16,5 +16,6 @@
         <file>icons/fullscreen72.png</file>
         <file>icons/window-maximize72.png</file>
         <file>icons/window-minimize72.png</file>
+        <file>icons/fullscreen-exit72.png</file>
     </qresource>
 </RCC>

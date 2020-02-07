@@ -8,6 +8,7 @@ import QtMultimedia 5.12
 import QtQuick.Dialogs 1.0
 
 Window {
+    id: mainWindow
     visible: true
     width: 900
     height: 700
@@ -15,11 +16,16 @@ Window {
     flags: Qt.FramelessWindowHint |
            Qt.WindowMinimizeButtonHint |
            Qt.Window
+
+
 Rectangle {
     id: root
     color: "black"
     width: parent.width
     height: parent.height
+    property int visibilityCounter: 10
+    property bool isFullScreen: false
+
     function msToTime(duration) {
       var milliseconds = parseInt((duration % 1000) / 100),
         seconds = Math.floor((duration / 1000) % 60),
@@ -39,13 +45,66 @@ Rectangle {
         mediaplayer.play();
     }
 
+    // top menu
     RowLayout {
-        width: parent.width
+        id: topMenu
+        width: 150
         y: 0
         z: 10
-
+        Button {
+               Layout.alignment: Qt.AlignHCenter
+               icon.name: "close"
+               icon.source: "icons/close72.png"
+               highlighted: true
+               Material.background: "black"
+               onClicked: {Qt.callLater(Qt.quit);}
+        }
+        Button {
+            property bool minimizedMaximized: true
+               Layout.alignment: Qt.AlignHCenter
+               icon.name: "minimize"
+               icon.source: minimizedMaximized ? "icons/window-maximize72.png" :"icons/window-maximize72.png"
+               highlighted: true
+               Material.background: "black"
+               onClicked: {
+                   if(minimizedMaximized) {
+                      mainWindow.showMaximized();
+                   } else {
+                      mainWindow.showNormal();
+                   }
+                   minimizedMaximized = !minimizedMaximized;
+                   root.isFullScreen = false;
+               }
+        }
+        Button {
+               property bool fullscreen: false
+               Layout.alignment: Qt.AlignHCenter
+               icon.name: "fullscreen"
+               icon.source: fullscreen ? "icons/fullscreen-exit72.png" :"icons/fullscreen72.png"
+               highlighted: true
+               Material.background: "black"
+               onClicked: {
+                   if(fullscreen) {
+                       mainWindow.showMaximized();
+                   } else {
+                       mainWindow.showFullScreen();
+                       root.isFullScreen=true;
+                       root.visibilityCounter = 0;
+                   }
+                   fullscreen  = !fullscreen;
+               }
+        }
+        Button {
+               Layout.alignment: Qt.AlignHCenter
+               icon.name: "minimize"
+               icon.source:  "icons/window-minimize72.png"
+               highlighted: true
+               Material.background: "black"
+               onClicked: {mainWindow.showMinimized();}
+        }
     }
 
+    // vedeo playing
     Column {
         width: parent.width
         height: parent.height
@@ -64,16 +123,24 @@ Rectangle {
             }
 
             MouseArea {
-                id: playArea
-                anchors.fill: parent
-                onPressed: {
-
-                }
+                 id: mouseAreaShow
+                 anchors.fill: parent
+                 anchors.margins: -10
+                 hoverEnabled: true         //this line will enable mouseArea.containsMouse
+//                 onClicked: {console.log("mouse hover");}
+                 onPositionChanged: {
+                     controlButtonsContainer.visible = true;
+                     sliderContainer.visible = true;
+                     topMenu.visible = true;
+                     mouseAreaShow.cursorShape = Qt.ArrowCursor;
+                     root.visibilityCounter = 0;
+                 }
             }
         }
 
      }
 
+    // subtitle
     Text {
         id: subtitleText
         z: 10
@@ -84,6 +151,7 @@ Rectangle {
         anchors.horizontalCenter: parent.horizontalCenter
     }
 
+    // slider for media position
     RowLayout {
             id: sliderContainer
             width: parent.width*0.95
@@ -114,6 +182,7 @@ Rectangle {
 
 
         RowLayout {
+            id: controlButtonsContainer
             width: parent.width
             y: parent.height-50
             z: 10
@@ -283,6 +352,15 @@ Rectangle {
                mediaplayer.volume = sliderVolumePosition.value/100;
            }
        }
+
+       // it has it itself
+//       Keys.onSpacePressed: {
+//           if(mediaplayer.PlayingState) {
+//               mediaplayer.pause();
+//           } else {
+//              mediaplayer.play();
+//           }
+//       }
   }
 
    Timer {
@@ -296,6 +374,17 @@ Rectangle {
           if(mediaplayer.duration == mediaplayer.position && mediaplayer.duration>0) {
 //              console.log("******** it reach last ************")
               root.playFile(BackEnd.getNextFile());
+          }
+
+          if(root.visibilityCounter == 3 && root.isFullScreen) {
+             console.log("hide controls");
+              sliderContainer.visible = false;
+              controlButtonsContainer.visible = false;
+              topMenu.visible = false;
+              mouseAreaShow.cursorShape = Qt.BlankCursor;
+          }
+          if(root.visibilityCounter < 3) {
+              root.visibilityCounter++;
           }
       }
    }
